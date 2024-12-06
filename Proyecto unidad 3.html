@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taqueria Don Inges</title>
+
+  <!-- Enlace a Bootstrap 5 (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Enlace a Chart.js (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Estilos adicionales -->
+  <style>
+    body {
+      background-image: url('Fondo Tacos.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      animation: rainbow 3s infinite;
+    }
+
+    @keyframes rainbow {
+      0% { color: red; }
+      16% { color: orange; }
+      33% { color: yellow; }
+      50% { color: green; }
+      66% { color: blue; }
+      83% { color: indigo; }
+      100% { color: violet; }
+    }
+
+    .header, .footer {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+    }
+
+    .pedido-container, .grafica-container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .full-height {
+      height: calc(100vh - 120px); /* Resta el tamaño del header y footer */
+      overflow-y: auto;
+    }
+
+    .order-section, .chart-section {
+      margin-bottom: 20px;
+    }
+
+    #anunciosCarousel {
+      max-width: 800px;
+      margin: 20px auto; /* Centrado debajo del encabezado */
+      border: 2px solid white; /* Opcional: borde blanco */
+      border-radius: 10px; /* Esquinas redondeadas */
+    }
+
+    .carousel-inner img {
+      height: 300px; /* Ajusta la altura */
+      object-fit: cover; /* Escala las imágenes */
+    }
+  </style>
+</head>
+<body>
+  <!-- Cabecera -->
+  <div class="header text-center">
+    <h1 id="titulo">Taqueria Don Inges</h1>
+  </div>
+
+  <!-- Carrusel de Anuncios -->
+  <div id="anunciosCarousel" class="carousel slide my-3" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src="Anuncio Comida.jpg" class="d-block w-100" alt="Anuncio 1">
+      </div>
+      <div class="carousel-item">
+        <img src="Anuncio Fut.jpg" class="d-block w-100" alt="Anuncio 2">
+      </div>
+      <div class="carousel-item">
+        <img src="Anuncio Auto.jpg" class="d-block w-100" alt="Anuncio 3">
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#anunciosCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Anterior</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#anunciosCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Siguiente</span>
+    </button>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="container-fluid full-height">
+    <div class="row">
+      <!-- Formulario de pedidos -->
+      <div class="col-lg-4 order-section">
+        <div class="pedido-container">
+          <h3>Haz tu pedido</h3>
+          <form id="pedido-form">
+            <div class="mb-3">
+              <label for="cliente" class="form-label">Nombre del Cliente</label>
+              <input type="text" class="form-control" id="cliente" required>
+            </div>
+            <div class="mb-3">
+              <label for="tipo-taco" class="form-label">Selecciona tu Taco</label>
+              <select class="form-select" id="tipo-taco" required>
+                <option value="" disabled selected>Selecciona...</option>
+                <option value="Pastor" data-precio="20">Taco al Pastor ($20)</option>
+                <option value="Asada" data-precio="25">Taco de Asada ($25)</option>
+                <option value="Barbacoa" data-precio="30">Taco de Barbacoa ($30)</option>
+                <option value="Vegetariano" data-precio="18">Taco Vegetariano ($18)</option>
+                <option value="Cemita" data-precio="50">Cemita ($50)</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="cantidad" class="form-label">Cantidad</label>
+              <input type="number" class="form-control" id="cantidad" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Agregar Pedido</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Gráfica de ventas -->
+      <div class="col-lg-8 chart-section">
+        <div class="grafica-container">
+          <h3>Ventas por Producto</h3>
+          <canvas id="grafica-ventas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pie de página -->
+  <div class="footer text-center">
+    <p>© 2024 Taqueria Don Inges. Todos los derechos reservados.</p>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Datos para la gráfica
+      const ctx = document.getElementById("grafica-ventas").getContext("2d");
+      const ventasData = {
+        labels: ["Pastor", "Asada", "Barbacoa", "Vegetariano", "Cemita"],
+        datasets: [{
+          label: "Ventas",
+          data: [30, 45, 25, 10, 40], // Datos de ejemplo
+          backgroundColor: [
+            "rgba(255, 99, 132, 0.5)",
+            "rgba(54, 162, 235, 0.5)",
+            "rgba(255, 206, 86, 0.5)",
+            "rgba(75, 192, 192, 0.5)",
+            "rgba(153, 102, 255, 0.5)"
+          ],
+          borderColor: [
+            "rgba(255, 99, 132, 1)",
+            "rgba(54, 162, 235, 1)",
+            "rgba(255, 206, 86, 1)",
+            "rgba(75, 192, 192, 1)",
+            "rgba(153, 102, 255, 1)"
+          ],
+          borderWidth: 1
+        }]
+      };
+
+      // Configuración de la gráfica
+      new Chart(ctx, {
+        type: "bar",
+        data: ventasData,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true, position: "top" },
+            tooltip: { enabled: true }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
